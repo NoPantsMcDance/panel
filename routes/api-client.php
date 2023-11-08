@@ -129,6 +129,15 @@ Route::group([
         Route::delete('/{backup}', [Client\Servers\BackupController::class, 'delete']);
     });
 
+    Route::group(['prefix' => '/mods'], function () {
+        Route::get('/curse', [Client\Servers\ModsController::class, 'curse']);
+        Route::get('/versions', [Client\Servers\ModsController::class, 'versions']);
+        Route::get('/description', [Client\Servers\ModsController::class, 'description']);
+        Route::get('/mcversions', [Client\Servers\ModsController::class, 'mcversions']);
+        Route::post('/install', [Client\Servers\ModsController::class, 'install']);
+
+    });
+
     Route::group(['prefix' => '/startup'], function () {
         Route::get('/', [Client\Servers\StartupController::class, 'index']);
         Route::put('/variable', [Client\Servers\StartupController::class, 'update']);

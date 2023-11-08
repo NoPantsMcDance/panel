@@ -1,0 +1,176 @@
+.mods-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Optional: provides space between the items */
+}
+
+.Mods-list {
+    width: 300px;
+    max-width: 375px;
+    height: 300px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: .25rem;
+    box-shadow: 1px 1px 4px #999;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px; /* Adjust as per your needs */
+    align-items: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Optional: provides space between the buttons */
+}
+
+.Mods-list-image {
+    height: 185px;
+    width: 100%;
+    display: inline-block;
+    object-fit: cover;
+}
+
+.Mods-list-button {
+    width: 100%;
+}
+
+.Mods-list-title {
+    font-size: 100%;
+    padding-top: 10px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.mod-button {
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.install-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border: none;
+}
+
+.install-button:hover {
+  background-color: white;
+  color: #4CAF50;
+}
+
+.info-button {
+  background-color: #008CBA; /* Blue */
+  color: white;
+  border: none;
+}
+
+.info-button:hover {
+  background-color: white;
+  color: #008CBA;
+}
+
+/* Container to hold the search input and sort dropdown */
+.controls-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px; /* space between the dropdown and the input */
+  margin-bottom: 20px;
+}
+
+/* Styles for the search input */
+.search-input {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  outline: none;
+  transition: box-shadow 0.3s;
+}
+
+.search-input:focus {
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+/* Styles to modernize the dropdown */
+select {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 25px;
+  background-color: #2a2839;
+  color: #cbccd4;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+
+select option {
+  background-color: #2a2839;
+  color: #cbccd4;
+}
+
+select option:hover {
+  background-color: #3a3949;
+  color: #ffffff;
+}
+
+select:focus {
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+input[type="text"], select {
+  background: transparent;
+  border: 1px solid #4c4b54; /* Add a subtle border so the fields are still visible */
+  border-radius: 5px; /* Optional: to make the corners slightly rounded */
+  padding: 8px 12px; /* Adjust as per your needs */
+  outline: none;
+  transition: border-color 0.3s; /* Smooth transition for hover and focus states */
+  color: #cbccd4; /* This will change the actual text color; adjust the hex code as desired */
+}
+
+input[type="text"]:focus, select:focus {
+  border-color: #555555; /* Darker border for focus state */
+}
+
+input[type="text"]::placeholder {
+  color: #cbccd4; /* This is typically a lighter color than the main text */
+}
+
+/* Define initial width and set transition for smooth growth */
+input[type="text"] {
+  width: 300px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.clear-text {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  opacity: 0; /* Change from display: none; to opacity: 0; */
+  pointer-events: none; /* Prevent click events when hidden */
+  color: #cbccd4;
+  transition: opacity 0.3s; /* Smooth transition for opacity */
+}
+
+/* Update the clear button when there's content in the input */
+.search-input:not(:placeholder-shown) + .clear-text {
+  opacity: 1; /* Show the 'x' */
+  pointer-events: auto; /* Allow click events */
+}

@@ -3,6 +3,7 @@
 namespace Pterodactyl\Console\Commands\Maintenance;
 
 use Carbon\CarbonImmutable;
+use InvalidArgumentException;
 use Illuminate\Console\Command;
 use Pterodactyl\Repositories\Eloquent\BackupRepository;
 
@@ -10,7 +11,7 @@ class PruneOrphanedBackupsCommand extends Command
 {
     protected $signature = 'p:maintenance:prune-backups {--prune-age=}';
 
-    protected $description = 'Marks all backups older than "n" minutes that have not yet completed as being failed.';
+    protected $description = 'Marks all backups that have not completed in the last "n" minutes as being failed.';
 
     /**
      * PruneOrphanedBackupsCommand constructor.
@@ -24,7 +25,7 @@ class PruneOrphanedBackupsCommand extends Command
     {
         $since = $this->option('prune-age') ?? config('backups.prune_age', 360);
         if (!$since || !is_digit($since)) {
-            throw new \InvalidArgumentException('The "--prune-age" argument must be a value greater than 0.');
+            throw new InvalidArgumentException('The "--prune-age" argument must be a value greater than 0.');
         }
 
         $query = $this->backupRepository->getBuilder()
@@ -38,7 +39,7 @@ class PruneOrphanedBackupsCommand extends Command
             return;
         }
 
-        $this->warn("Marking $count uncompleted backups that are older than $since minutes as failed.");
+        $this->warn("Marking $count backups that have not been marked as completed in the last $since minutes as failed.");
 
         $query->update([
             'is_successful' => false,

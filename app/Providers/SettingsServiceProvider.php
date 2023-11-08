@@ -57,7 +57,7 @@ class SettingsServiceProvider extends ServiceProvider
     /**
      * Boot the service provider.
      */
-    public function boot(ConfigRepository $config, Encrypter $encrypter, Log $log, SettingsRepositoryInterface $settings): void
+    public function boot(ConfigRepository $config, Encrypter $encrypter, Log $log, SettingsRepositoryInterface $settings)
     {
         // Only set the email driver settings from the database if we
         // are configured using SMTP as the driver.
@@ -80,7 +80,7 @@ class SettingsServiceProvider extends ServiceProvider
             if (in_array($key, self::$encrypted)) {
                 try {
                     $value = $encrypter->decrypt($value);
-                } catch (DecryptException) {
+                } catch (DecryptException $exception) {
                 }
             }
 

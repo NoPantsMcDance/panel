@@ -25,7 +25,7 @@ export interface Server {
     };
     invocation: string;
     dockerImage: string;
-    description: string | null;
+    description: string;
     limits: {
         memory: number;
         swap: number;
@@ -43,6 +43,8 @@ export interface Server {
     isTransferring: boolean;
     variables: ServerEggVariable[];
     allocations: Allocation[];
+    nestId: number;
+    eggId: number;
 }
 
 export const rawDataToServerObject = ({ attributes: data }: FractalResponseData): Server => ({
@@ -65,11 +67,13 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
     featureLimits: { ...data.feature_limits },
     isTransferring: data.is_transferring,
     variables: ((data.relationships?.variables as FractalResponseList | undefined)?.data || []).map(
-        rawDataToServerEggVariable,
+        rawDataToServerEggVariable
     ),
     allocations: ((data.relationships?.allocations as FractalResponseList | undefined)?.data || []).map(
-        rawDataToServerAllocation,
+        rawDataToServerAllocation
     ),
+    nestId: data.nest_id,
+    eggId: data.egg_id,
 });
 
 export default (uuid: string): Promise<[Server, string[]]> => {
@@ -80,7 +84,7 @@ export default (uuid: string): Promise<[Server, string[]]> => {
                     rawDataToServerObject(data),
                     // eslint-disable-next-line camelcase
                     data.meta?.is_server_owner ? ['*'] : data.meta?.user_permissions || [],
-                ]),
+                ])
             )
             .catch(reject);
     });

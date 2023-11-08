@@ -18,7 +18,6 @@ use Pterodactyl\Transformers\Api\Client\BackupTransformer;
 use Pterodactyl\Http\Controllers\Api\Client\ClientApiController;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Pterodactyl\Http\Requests\Api\Client\Servers\Backups\StoreBackupRequest;
-use Pterodactyl\Http\Requests\Api\Client\Servers\Backups\RestoreBackupRequest;
 
 class BackupController extends ClientApiController
 {
@@ -50,7 +49,7 @@ class BackupController extends ClientApiController
         $limit = min($request->query('per_page') ?? 20, 50);
 
         return $this->fractal->collection($server->backups()->paginate($limit))
-            ->transformWith(BackupTransformer::class)
+            ->transformWith($this->getTransformer(BackupTransformer::class))
             ->addMeta([
                 'backup_count' => $this->repository->getNonFailedBackups($server)->count(),
             ])
@@ -85,7 +84,7 @@ class BackupController extends ClientApiController
             ->log();
 
         return $this->fractal->item($backup)
-            ->transformWith(BackupTransformer::class)
+            ->transformWith($this->getTransformer(BackupTransformer::class))
             ->toArray();
     }
 
@@ -108,7 +107,7 @@ class BackupController extends ClientApiController
         Activity::event($action)->subject($backup)->property('name', $backup->name)->log();
 
         return $this->fractal->item($backup)
-            ->transformWith(BackupTransformer::class)
+            ->transformWith($this->getTransformer(BackupTransformer::class))
             ->toArray();
     }
 
@@ -124,7 +123,7 @@ class BackupController extends ClientApiController
         }
 
         return $this->fractal->item($backup)
-            ->transformWith(BackupTransformer::class)
+            ->transformWith($this->getTransformer(BackupTransformer::class))
             ->toArray();
     }
 
@@ -189,8 +188,12 @@ class BackupController extends ClientApiController
      *
      * @throws \Throwable
      */
-    public function restore(RestoreBackupRequest $request, Server $server, Backup $backup): JsonResponse
+    public function restore(Request $request, Server $server, Backup $backup): JsonResponse
     {
+        if (!$request->user()->can(Permission::ACTION_BACKUP_RESTORE, $server)) {
+            throw new AuthorizationException();
+        }
+
         // Cannot restore a backup unless a server is fully installed and not currently
         // processing a different backup restoration request.
         if (!is_null($server->status)) {

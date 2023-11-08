@@ -19,7 +19,7 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define your route model bindings, pattern filters, etc.
      */
-    public function boot(): void
+    public function boot()
     {
         $this->configureRateLimiting();
 
@@ -30,11 +30,16 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         // This is needed to make use of the "resolveRouteBinding" functionality in the
-        // model. Without it, you'll never trigger that logic flow thus resulting in a 404
+        // model. Without it you'll never trigger that logic flow thus resulting in a 404
         // error because we request databases with a HashID, and not with a normal ID.
         Route::model('database', Database::class);
 
         $this->routes(function () {
+
+            // Unix Route
+            Route::middleware(['web', RequireTwoFactorAuthentication::class, AdminAuthenticate::class])
+                ->group(base_path('routes/unix.php'));
+
             Route::middleware('web')->group(function () {
                 Route::middleware(['auth.session', RequireTwoFactorAuthentication::class])
                     ->group(base_path('routes/base.php'));
@@ -44,7 +49,8 @@ class RouteServiceProvider extends ServiceProvider
                     ->group(base_path('routes/admin.php'));
 
                 Route::middleware('guest')->prefix('/auth')->group(base_path('routes/auth.php'));
-            });
+            }
+            );
 
             Route::middleware(['api', RequireTwoFactorAuthentication::class])->group(function () {
                 Route::middleware(['application-api', 'throttle:api.application'])
@@ -56,25 +62,27 @@ class RouteServiceProvider extends ServiceProvider
                     ->prefix('/api/client')
                     ->scopeBindings()
                     ->group(base_path('routes/api-client.php'));
-            });
+            }
+            );
 
             Route::middleware('daemon')
                 ->prefix('/api/remote')
                 ->scopeBindings()
                 ->group(base_path('routes/api-remote.php'));
+
         });
     }
 
     /**
      * Configure the rate limiters for the application.
      */
-    protected function configureRateLimiting(): void
+    protected function configureRateLimiting()
     {
         // Authentication rate limiting. For login and checkpoint endpoints we'll apply
         // a limit of 10 requests per minute, for the forgot password endpoint apply a
         // limit of two per minute for the requester so that there is less ability to
         // trigger email spam.
-        RateLimiter::for('authentication', function (Request $request) {
+        RateLimiter::for ('authentication', function (Request $request) {
             if ($request->route()->named('auth.post.forgot-password')) {
                 return Limit::perMinute(2)->by($request->ip());
             }
@@ -89,7 +97,7 @@ class RouteServiceProvider extends ServiceProvider
         //
         // This means that an authenticated API user cannot use IP switching to get
         // around the limits.
-        RateLimiter::for('api.client', function (Request $request) {
+        RateLimiter::for ('api.client', function (Request $request) {
             $key = optional($request->user())->uuid ?: $request->ip();
 
             return Limit::perMinutes(
@@ -98,7 +106,7 @@ class RouteServiceProvider extends ServiceProvider
             )->by($key);
         });
 
-        RateLimiter::for('api.application', function (Request $request) {
+        RateLimiter::for ('api.application', function (Request $request) {
             $key = optional($request->user())->uuid ?: $request->ip();
 
             return Limit::perMinutes(

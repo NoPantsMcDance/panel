@@ -40,10 +40,6 @@
     &.secondary {
         @apply hover:bg-blue-600 active:bg-blue-600;
     }
-
-    &:disabled {
-        @apply bg-blue-500/75 text-blue-200/75;
-    }
 }
 
 .text {

@@ -31,11 +31,11 @@ use Pterodactyl\Exceptions\Http\Server\ServerStateConflictException;
  * @property int $io
  * @property int $cpu
  * @property string|null $threads
- * @property bool $oom_killer
+ * @property bool $oom_disabled
  * @property int $allocation_id
  * @property int $nest_id
  * @property int $egg_id
- * @property string|null $startup
+ * @property string $startup
  * @property string $image
  * @property int|null $allocation_limit
  * @property int|null $database_limit
@@ -55,7 +55,6 @@ use Pterodactyl\Exceptions\Http\Server\ServerStateConflictException;
  * @property \Pterodactyl\Models\Egg|null $egg
  * @property \Illuminate\Database\Eloquent\Collection|\Pterodactyl\Models\Mount[] $mounts
  * @property int|null $mounts_count
- * @property \Pterodactyl\Models\Location $location
  * @property \Pterodactyl\Models\Nest $nest
  * @property \Pterodactyl\Models\Node $node
  * @property \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
@@ -90,7 +89,7 @@ use Pterodactyl\Exceptions\Http\Server\ServerStateConflictException;
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereNestId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereNodeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Server whereOomKiller($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOomDisabled($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereOwnerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereSkipScripts($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereStartup($value)
@@ -131,7 +130,7 @@ class Server extends Model
      */
     protected $attributes = [
         'status' => self::STATUS_INSTALLING,
-        'oom_killer' => false,
+        'oom_disabled' => true,
         'installed_at' => null,
     ];
 
@@ -139,6 +138,11 @@ class Server extends Model
      * The default relationships to load for all server models.
      */
     protected $with = ['allocation'];
+
+    /**
+     * The attributes that should be mutated to dates.
+     */
+    protected $dates = [self::CREATED_AT, self::UPDATED_AT, 'deleted_at', 'installed_at'];
 
     /**
      * Fields that are not mass assignable.
@@ -157,12 +161,12 @@ class Server extends Model
         'io' => 'required|numeric|between:10,1000',
         'cpu' => 'required|numeric|min:0',
         'threads' => 'nullable|regex:/^[0-9-,]+$/',
-        'oom_killer' => 'sometimes|boolean',
+        'oom_disabled' => 'sometimes|boolean',
         'disk' => 'required|numeric|min:0',
         'allocation_id' => 'required|bail|unique:servers|exists:allocations,id',
         'nest_id' => 'required|exists:nests,id',
         'egg_id' => 'required|exists:eggs,id',
-        'startup' => 'nullable|string',
+        'startup' => 'required|string',
         'skip_scripts' => 'sometimes|boolean',
         'image' => 'required|string|max:191',
         'database_limit' => 'present|nullable|integer|min:0',
@@ -182,17 +186,13 @@ class Server extends Model
         'disk' => 'integer',
         'io' => 'integer',
         'cpu' => 'integer',
-        'oom_killer' => 'boolean',
+        'oom_disabled' => 'boolean',
         'allocation_id' => 'integer',
         'nest_id' => 'integer',
         'egg_id' => 'integer',
         'database_limit' => 'integer',
         'allocation_limit' => 'integer',
         'backup_limit' => 'integer',
-        self::CREATED_AT => 'datetime',
-        self::UPDATED_AT => 'datetime',
-        'deleted_at' => 'datetime',
-        'installed_at' => 'datetime',
     ];
 
     /**

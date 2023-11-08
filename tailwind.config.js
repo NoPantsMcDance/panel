@@ -1,7 +1,22 @@
 const colors = require('tailwindcss/colors');
 
+const gray = {
+    50: 'blue',
+    100: 'var(--active-body-color)',
+    200: 'var(--body-color)',
+    300: 'var(--body-color)',
+    400: 'var(--body-color)',
+    500: 'var(--body-color)',
+    600: 'var(--theme-secondary-bg)',
+    700: 'var(--theme-primary-bg)',
+    800: 'var(--theme-bg)',
+    900: 'var(--theme-primary-bg)',
+};
+
 module.exports = {
-    content: ['./resources/scripts/**/*.{js,ts,tsx}'],
+    content: [
+        './resources/scripts/**/*.{js,ts,tsx}',
+    ],
     theme: {
         extend: {
             fontFamily: {
@@ -9,11 +24,11 @@ module.exports = {
             },
             colors: {
                 black: '#131a20',
-                slate: colors.slate,
                 // "primary" and "neutral" are deprecated, prefer the use of "blue" and "gray"
                 // in new code.
                 primary: colors.blue,
-                neutral: colors.slate,
+                gray: gray,
+                neutral: gray,
                 cyan: colors.cyan,
             },
             fontSize: {
@@ -32,5 +47,5 @@ module.exports = {
         require('@tailwindcss/forms')({
             strategy: 'class',
         }),
-    ],
+    ]
 };

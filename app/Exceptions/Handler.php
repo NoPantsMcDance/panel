@@ -3,6 +3,8 @@
 namespace Pterodactyl\Exceptions;
 
 use Exception;
+use Throwable;
+use PDOException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
@@ -23,7 +25,7 @@ use Pterodactyl\Exceptions\Repository\RecordNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
-final class Handler extends ExceptionHandler
+class Handler extends ExceptionHandler
 {
     /**
      * The validation parser in Laravel formats custom rules using the class name
@@ -73,13 +75,13 @@ final class Handler extends ExceptionHandler
      *
      * @noinspection PhpUnusedLocalVariableInspection
      */
-    public function register(): void
+    public function register()
     {
         if (config('app.exceptions.report_all', false)) {
             $this->dontReport = [];
         }
 
-        $this->reportable(function (\PDOException $ex) {
+        $this->reportable(function (PDOException $ex) {
             $ex = $this->generateCleanedExceptionStack($ex);
         });
 
@@ -88,7 +90,7 @@ final class Handler extends ExceptionHandler
         });
     }
 
-    private function generateCleanedExceptionStack(\Throwable $exception): string
+    private function generateCleanedExceptionStack(Throwable $exception): string
     {
         $cleanedStack = '';
         foreach ($exception->getTrace() as $index => $item) {
@@ -121,7 +123,7 @@ final class Handler extends ExceptionHandler
      *
      * @throws \Throwable
      */
-    public function render($request, \Throwable $e): Response
+    public function render($request, Throwable $e): Response
     {
         $connections = $this->container->make(Connection::class);
 
@@ -187,7 +189,7 @@ final class Handler extends ExceptionHandler
     /**
      * Return the exception as a JSONAPI representation for use on API requests.
      */
-    protected function convertExceptionToArray(\Throwable $e, array $override = []): array
+    protected function convertExceptionToArray(Throwable $e, array $override = []): array
     {
         $match = self::$exceptionResponseCodes[get_class($e)] ?? null;
 
@@ -233,7 +235,7 @@ final class Handler extends ExceptionHandler
     /**
      * Return an array of exceptions that should not be reported.
      */
-    public static function isReportable(\Exception $exception): bool
+    public static function isReportable(Exception $exception): bool
     {
         return (new static(Container::getInstance()))->shouldReport($exception);
     }
@@ -258,11 +260,11 @@ final class Handler extends ExceptionHandler
      *
      * @return \Throwable[]
      */
-    protected function extractPrevious(\Throwable $e): array
+    protected function extractPrevious(Throwable $e): array
     {
         $previous = [];
         while ($value = $e->getPrevious()) {
-            if (!$value instanceof \Throwable) {
+            if (!$value instanceof Throwable) {
                 break;
             }
             $previous[] = $value;
@@ -276,7 +278,7 @@ final class Handler extends ExceptionHandler
      * Helper method to allow reaching into the handler to convert an exception
      * into the expected array response type.
      */
-    public static function toArray(\Throwable $e): array
+    public static function toArray(Throwable $e): array
     {
         return (new self(app()))->convertExceptionToArray($e);
     }

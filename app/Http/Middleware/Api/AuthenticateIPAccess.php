@@ -2,6 +2,7 @@
 
 namespace Pterodactyl\Http\Middleware\Api;
 
+use Closure;
 use IPTools\IP;
 use IPTools\Range;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class AuthenticateIPAccess
      * @throws \Exception
      * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
      */
-    public function handle(Request $request, \Closure $next): mixed
+    public function handle(Request $request, Closure $next): mixed
     {
         /** @var \Laravel\Sanctum\TransientToken|\Pterodactyl\Models\ApiKey $token */
         $token = $request->user()->currentAccessToken();
